@@ -1,7 +1,6 @@
-import { Methods } from "./.rtag/methods";
+import { Methods, Context, Result } from "./.rtag/methods";
 import {
   UserData,
-  Result,
   GameStatus,
   Color,
   Piece,
@@ -27,7 +26,7 @@ interface InternalState {
 }
 
 export class Impl implements Methods<InternalState> {
-  createGame(user: UserData, request: ICreateGameRequest): InternalState {
+  createGame(user: UserData, ctx: Context, request: ICreateGameRequest): InternalState {
     return {
       chess: new Chess(),
       users: [{ name: user.name, color: Color.WHITE }],
@@ -35,24 +34,24 @@ export class Impl implements Methods<InternalState> {
       history: [],
     };
   }
-  startGame(state: InternalState, user: UserData, request: IStartGameRequest): Result {
+  startGame(state: InternalState, user: UserData, ctx: Context, request: IStartGameRequest): Result {
     if (state.users.find((u) => u.name === user.name) !== undefined) {
-      return Result.error("Need opponent to start game");
+      return Result.unmodified("Need opponent to start game");
     }
     state.users.push({ name: user.name, color: Color.BLACK });
-    return Result.success();
+    return Result.modified();
   }
-  movePiece(state: InternalState, user: UserData, request: IMovePieceRequest): Result {
+  movePiece(state: InternalState, user: UserData, ctx: Context, request: IMovePieceRequest): Result {
     if (gameStatus(state) === GameStatus.WAITING) {
-      return Result.error("Game not started");
+      return Result.unmodified("Game not started");
     }
     const color = state.users.find((u) => u.name === user.name)?.color;
     if (convertColor(state.chess.turn()) !== color) {
-      return Result.error("Not your turn");
+      return Result.unmodified("Not your turn");
     }
     const move = state.chess.move({ from: request.from as Square, to: request.to as Square });
     if (move === null) {
-      return Result.error("Invalid move");
+      return Result.unmodified("Invalid move");
     }
     if (move.captured !== undefined) {
       state.captures.push({
@@ -62,7 +61,7 @@ export class Impl implements Methods<InternalState> {
       });
     }
     state.history.push(move.san);
-    return Result.success();
+    return Result.modified();
   }
   getUserState(state: InternalState, user: UserData): PlayerState {
     const internalUser = state.users.find((u) => u.name === user.name);
