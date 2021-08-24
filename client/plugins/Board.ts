@@ -1,12 +1,12 @@
 import { LitElement, html, property } from "lit-element";
 import { Board, Color, Piece, PieceType, PlayerState } from "../.rtag/types";
-import { RtagClient } from "../.rtag/client";
+import { RtagConnection } from "../.rtag/client";
 import "chessboard-element";
 
 export default class BoardEl extends LitElement {
   @property() val!: Board;
   @property() state!: PlayerState;
-  @property() client!: RtagClient;
+  @property() client!: RtagConnection;
 
   render() {
     return html`<chess-board
@@ -19,9 +19,9 @@ export default class BoardEl extends LitElement {
     const board = this.shadowRoot?.querySelector("chess-board");
     board!.addEventListener("drop", async (e) => {
       const res = await this.client.movePiece({ from: e.detail.source, to: e.detail.target });
-      if (res !== undefined) {
+      if (res.type === "error") {
         board?.setPosition(e.detail.oldPosition);
-        this.dispatchEvent(new CustomEvent("error", { detail: res }));
+        this.dispatchEvent(new CustomEvent("error", { detail: res.error }));
       }
     });
   }

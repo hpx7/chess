@@ -4,7 +4,6 @@ types:
   Board: Piece[]
 
   Color:
-    - NONE
     - WHITE
     - BLACK
   PieceType:
@@ -28,8 +27,6 @@ types:
     square: Square
   PlayerState:
     board: Board
-    captures: Piece[]
-    history: string[]
     status: GameStatus
     color: Color
     opponent?: PlayerName
