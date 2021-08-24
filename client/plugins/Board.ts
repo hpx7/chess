@@ -1,4 +1,5 @@
-import { LitElement, html, property } from "lit-element";
+import { LitElement, html } from "lit";
+import { property } from "lit/decorators.js";
 import { Board, Color, Piece, PieceType, PlayerState } from "../.rtag/types";
 import { RtagConnection } from "../.rtag/client";
 import "chessboard-element";
